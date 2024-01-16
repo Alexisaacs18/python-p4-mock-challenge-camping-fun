@@ -27,20 +27,36 @@ def home():
 
 @app.route('/campers', methods=['GET', "POST"])
 def get_campers():
+
     campers = [camper.to_dict() for camper in Camper.query.all()]
-
-    # campers = []
-    # camper = Camper.query.all()
-    # for camper in campers:
-    #     camper_dict = camper.to_dict()
-    #     campers.append(camper_dict)
     
-    response = make_response(
-        campers,
-        200
-    )
+    if request.method == 'GET':
+    
+        response = make_response(
+            campers,
+            200
+        )
 
-    # campers = [camper.to_dict() for camper in Camper.query.all()]
+    elif request.method == 'POST':
+        try:
+            form_data = request.get_json()
+            new_camper = Camper(
+                name = form_data["name"],
+                age = form_data["age"]
+            )
+
+            db.session.add(new_camper)
+            db.session.commit()
+
+            response = make_response(
+                new_camper,
+                201
+            )
+        except ValueError:
+            response = make_response(
+                { "errors": ["validation errors"] },
+                400
+            )
 
     return response
 
