@@ -25,7 +25,7 @@ db.init_app(app)
 def home():
     return ''
 
-@app.route('/campers', methods=['GET'])
+@app.route('/campers', methods=['GET', "POST"])
 def get_campers():
     campers = [camper.to_dict() for camper in Camper.query.all()]
 
@@ -44,19 +44,53 @@ def get_campers():
 
     return response
 
-@app.route('/campers/<int:id>')
+@app.route('/campers/<int:id>', methods = ["GET", "PATCH"])
 def campers_by_id(id):
-    try:
-        camper = Camper.query.filter(Camper.id == id).first()
+
+    camper = Camper.query.filter(Camper.id == id).first()
+
+    if request.method == "GET":
+
+        try:
+
+            response = make_response(
+                camper.to_dict(),
+                200
+            )
+
+        except: 
+            response = make_response(
+                {"Error": "Camper_ID does not exist"},
+                404
+            )
+
+    elif request.method == "PATCH":
+
+        try:
+            
+            form_data = request.get_json()
+
+            for key in form_data:
+                setattr(camper, key, form_data[key])
+
+            db.session.commit()
+
+            response = make_response(
+                camper.to_dict(),
+                201
+            )
+
+        except: 
+            response = make_response(
+                {"Error": "Camper_ID does not exist"},
+                404
+            )
+
+    else:
 
         response = make_response(
-            camper.to_dict(),
-            200
-        )
-    except: 
-        response = make_response(
-            {"Error": "Camper_ID does not exist"},
-            404
+            {"Error": "try a different method bro"},
+            400
         )
 
     return response
