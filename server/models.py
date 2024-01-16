@@ -47,7 +47,7 @@ class Camper(db.Model, SerializerMixin):
     def validation_name(self, key, val):
         return val
     
-    validates("age")
+    @validates("age")
     def validation_age(self, key, val):
         if val < 8:
             raise ValueError

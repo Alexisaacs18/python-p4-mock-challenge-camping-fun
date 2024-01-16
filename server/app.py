@@ -25,5 +25,41 @@ db.init_app(app)
 def home():
     return ''
 
+@app.route('/campers', methods=['GET'])
+def get_campers():
+    campers = [camper.to_dict() for camper in Camper.query.all()]
+
+    # campers = []
+    # camper = Camper.query.all()
+    # for camper in campers:
+    #     camper_dict = camper.to_dict()
+    #     campers.append(camper_dict)
+    
+    response = make_response(
+        campers,
+        200
+    )
+
+    # campers = [camper.to_dict() for camper in Camper.query.all()]
+
+    return response
+
+@app.route('/campers/<int:id>')
+def campers_by_id(id):
+    try:
+        camper = Camper.query.filter(Camper.id == id).first()
+
+        response = make_response(
+            camper.to_dict(),
+            200
+        )
+    except: 
+        response = make_response(
+            {"Error": "Camper_ID does not exist"},
+            404
+        )
+
+    return response
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
