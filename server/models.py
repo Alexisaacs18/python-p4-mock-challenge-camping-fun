@@ -74,12 +74,14 @@ class Signup(db.Model, SerializerMixin):
     
     serialize_rules = ("-campers.signups", "-activities.signups")
     
-    validates("time")
+    @validates("time")
     def validation_time(self, key, val):
-        if 0 <= val >= 23:
-            return val
-        else:
+        if val < 0:
             raise ValueError
+        elif val > 23:
+            raise ValueError
+        else:
+            return val
     
     def __repr__(self):
         return f'<Signup {self.id}>'

@@ -49,7 +49,7 @@ def get_campers():
             db.session.commit()
 
             response = make_response(
-                new_camper,
+                new_camper.to_dict(),
                 201
             )
         except ValueError:
@@ -111,5 +111,73 @@ def campers_by_id(id):
 
     return response
 
+@app.route("/activities", methods = ["GET"])
+def get_activities():
+
+    activities = Activity.query.all()
+
+    activities_to_dict = [activity.to_dict() for activity in activities]
+
+    response = make_response(
+        activities_to_dict,
+        200,
+    )
+
+    return response
+
+@app.route("/activities/<int:id>", methods = ["DELETE"])
+def delete_activity(id):
+
+    activity = Activity.query.filter(Activity.id == id).first()
+
+    try:
+
+        db.session.delete(activity)
+        db.session.commit()
+
+        response = make_response(
+            {},
+            200
+        )
+
+    except:
+
+        response = make_response(
+            {"error": "Activity not found"},
+            404
+        )
+
+    return response
+
+@app.route('/signups', methods = ["POST"])
+def new_signup():
+
+    try:
+
+        form_data = request.get_json()
+
+        new_sign_up = Signup(
+            camper_id = form_data["camper_id"],
+            activity_id = form_data["activity_id"],
+            time = form_data["time"]
+        )
+
+        db.session.add(new_sign_up)
+        db.session.commit()
+
+        response = make_response(
+            new_sign_up.to_dict(),
+            201
+        )
+
+    except ValueError:
+
+        response = make_response(
+            { "errors": ["validation errors"] },
+            400
+        )
+
+    return response
+    
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
